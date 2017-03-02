@@ -4,8 +4,8 @@ import bcrypt
 from playhouse.sqlcipher_ext import *
 
 database='user_data.db'
-db = SqlCipherDatabase(database, passphrase='testtest')
-#db = ''
+db = SqlCipherDatabase(database, passphrase='testtest') # Key must store in some secure path ; then import from there
+
 
 class Category(Model):
     category_id = IntegerField(unique=True)
@@ -38,8 +38,6 @@ def access_db(password):
     global db
     try:
         db = SqlCipherDatabase(database, passphrase=password)
-        # Category._meta.database = db
-        # Customer._meta.database = db
         if not db.get_tables():
             db.create_tables([Category, Customer])
         return db
@@ -138,14 +136,3 @@ def update_category(obj, cat_id, cat_name):
         obj.category_id = cat_id
         obj.category_name = cat_name
         obj.save()
-
-# def update_customer(obj, cat_obj, c_id, c_name, age, phone, address, password ):
-#     try:
-#         value = Category.get(Category.category_id==cat_id)
-#         if value:
-#             raise DuplicateEntry('Id already selected assigned for {}'.format(value.category_name))
-#     except Category.DoesNotExist as e:
-#         obj.category_id = cat_id
-#         obj.category_name = cat_name
-#         obj.save()
-
