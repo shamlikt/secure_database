@@ -1,7 +1,30 @@
 import peewee
 import bcrypt
 
-from model import Category, Customer
+from playhouse.sqlcipher_ext import *
+
+database='user_data.db'
+db = SqlCipherDatabase(database, passphrase='testtest')
+#db = ''
+
+class Category(Model):
+    category_id = IntegerField(unique=True)
+    category_name = TextField()
+
+    class Meta:
+        database = db
+
+class Customer(Model):
+    customer_id = IntegerField(unique=True)
+    category= ForeignKeyField(Category, related_name='category')
+    age = IntegerField()
+    phone = CharField()
+    address = TextField()
+    customer_name = CharField()
+    password=CharField()
+    class Meta:
+        database = db
+
 
 class DuplicateEntry(Exception):
     def __init__(self, message):
@@ -10,25 +33,53 @@ class DuplicateEntry(Exception):
 class DataError(ValueError):
     def __init__(self, message):
         self.message=message
-    
+
+def access_db(password):
+    global db
+    try:
+        db = SqlCipherDatabase(database, passphrase=password)
+        # Category._meta.database = db
+        # Customer._meta.database = db
+        if not db.get_tables():
+            db.create_tables([Category, Customer])
+        return db
+    except:
+        return None
+
 def hash_password(p_password):
     return bcrypt.hashpw(p_password, bcrypt.gensalt())
 
 def add_category(name, cat_id):
     try:
-        obj = Category.create(category_id=cat_id, category_name=name)
-        return obj
+        obj = Category(category_id=cat_id, category_name=name)
+        obj.save()
     except peewee.IntegrityError:
         raise DuplicateEntry('{} is already assigned, Please enter another id'.format(cat_id))
 
+def show_all_category():
+    category = []
+    for cat in Category.select():
+        category.append(cat.category_name)
+    return category
+
+def delete_entry(r_id, category=True):
+    if category:
+        query = Category.delete().where(Category.category_id==r_id)
+        query.execute()
+    else:
+        query = Customer.delete().where(Customer.customer_id==r_id)
+        query.execute()
+        
 def add_customer(c_id, c_name, category, age, phone, address, password):
     password = hash_password(password)
+    category = Category.get(category_name=category)
+
     obj = Customer(customer_id=c_id,
                           customer_name=c_name,
                           category=category,
                           age=age,
                           phone=phone,
-                          addrss=address,
+                          address=address,
                           password=password
                           )
                           
@@ -63,6 +114,20 @@ def validate_customer_data(c_id, c_name, category, age, phone, address, password
     if not password:
         response['Password'] = 'Password not be empty'
     return response
+
+def get_data(id, category=True):
+    if category:
+        try:
+            value = Category.get(category_id=id)
+            return value
+        except Category.DoesNotExist:
+            raise DataError('Id Does not exit please try again')
+    else:
+        try:
+            value = Customer.get(category_id=id)
+            return value
+        except Customer.DoesNotExist:
+            raise DataError('Id Does not exit please try again')
 
 def update_category(obj, cat_id, cat_name):
     try:
