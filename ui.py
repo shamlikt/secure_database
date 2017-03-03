@@ -260,7 +260,7 @@ class Database:
         self.address.configure(selectbackground="#c4c4c4")
 
         self.back_cu = Button(self.root, command=self.show_main)
-        self.back_cu.bind('<Return>', lambda x: self.show_customer())
+        self.back_cu.bind('<Return>', lambda x: self.show_main())
         self.back_cu.place(relx=0.47, rely=0.7, height=46, width=117)
         self.back_cu.configure(activebackground="#d9d9d9")
         self.back_cu.configure(text='''Back''')
