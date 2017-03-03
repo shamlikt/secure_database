@@ -122,7 +122,7 @@ def get_data(id, category=True):
             raise DataError('Id Does not exit please try again')
     else:
         try:
-            value = Customer.get(category_id=id)
+            value = Customer.get(customer_id=id)
             return value
         except Customer.DoesNotExist:
             raise DataError('Id Does not exit please try again')
