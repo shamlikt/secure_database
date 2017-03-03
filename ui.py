@@ -47,7 +47,7 @@ class Database:
         self.login_label.configure(width=96)
 
         self.login_button = Button(top, command=self.check_user)
-        self.login_button.bind('<Return>', lambda x: self.show_main())           #show main
+        self.login_button.bind('<Return>', lambda x: self.check_user())
         self.login_button.place(relx=0.43, rely=0.5, height=26, width=70)
         self.login_button.configure(activebackground="#d9d9d9")
         self.login_button.configure(text='''Submit''')
@@ -77,12 +77,6 @@ class Database:
             except DuplicateEntry as e:
                 tkMessageBox.showerror(title="Error", message=e.message, parent=self.root)
 
-#     def focus_next_window(event):
-#         event.widget.tk_focusNext().focus()
-#     return("break")
-
-# text_widget=Text(...)
-# text_widget.bind("<Tab>", focus_next_window)
          
     def show_main(self):
         '''This class configures and populates the toplevel window.
